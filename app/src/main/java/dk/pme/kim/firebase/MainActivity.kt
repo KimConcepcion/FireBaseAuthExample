@@ -1,10 +1,17 @@
 package dk.pme.kim.firebase
 
+import android.app.Notification
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.*
+import com.google.firebase.storage.UploadTask
+import java.util.*
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,12 +19,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //  Test of auth:
-        performRegister("batman@bat.com", "betterThanSuperman")
-        performRegister("superman@super.com", "betterThanBatman")
-        performRegister("Lasse@King.com", "betterThanJL")
+        val url : String = "gs://testapp-9baa2.appspot.com"
+        val mobile_path = "/sdcard/Download/onlinedata.txt"
+        val file = Uri.fromFile(File(mobile_path))
+
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.getReference("Uploads/")
+        val uploadTask = storageRef.putFile(file)
+                .addOnFailureListener {
+
+                    Toast.makeText(this, "Upload unsuccesful", Toast.LENGTH_SHORT).show()
+                    //Log.e("UploadError")
+                }
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Upload succesful", Toast.LENGTH_SHORT).show()
+                }
     }
 
+    //  Method for registering user:
     fun performRegister(email : String, password : String){
         if(email.isEmpty() || password.isEmpty()){
             Toast.makeText(this, "Please enter email & password!", Toast.LENGTH_SHORT).show()
@@ -30,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
                     //  else if succesful
                     Log.d("Main",
-                            "Succesfully created user with uid: ${it.result.user.uid}")
+                            "Succesfully created user with uid: ${it.result?.user?.uid}")
                 }
                 .addOnFailureListener{
                     //  Inform user about wrong format of email - e.g. test@ is not valid
@@ -40,4 +59,8 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+//  Test of auth - these worked so they are commented out:
+//performRegister("batman@bat.com", "betterThanSuperman")
+//performRegister("superman@super.com", "betterThanBatman")
+//performRegister("Lasse@King.com", "betterThanJL")
 
