@@ -4,6 +4,7 @@ import android.app.Notification
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
@@ -20,22 +21,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val url : String = "gs://testapp-9baa2.appspot.com"
-        val mobile_path = "/sdcard/Download/onlinedata.txt"
+        val mobile_path = Environment.getExternalStorageDirectory().toString()+"/Download/onlinedata.txt"
         val file = Uri.fromFile(File(mobile_path))
-
         val storage = FirebaseStorage.getInstance()
-        val storageRef = storage.getReference("Uploads/")
-        val uploadTask = storageRef.putFile(file)
+        val storageRef = storage.getReferenceFromUrl(url)
+        val onlineRef = storageRef.child("Uploads/onlinedata.txt")
+
+		Log.i("Path", file.path)
+        onlineRef.putFile(file)
                 .addOnFailureListener {
 
                     Toast.makeText(this, "Upload unsuccesful", Toast.LENGTH_SHORT).show()
-                    //Log.e("UploadError")
+                    Log.d("MainActivity-Error", it.message)
                 }
                 .addOnSuccessListener {
                     Toast.makeText(this, "Upload succesful", Toast.LENGTH_SHORT).show()
                 }
     }
 
+    /*
     //  Method for registering user:
     fun performRegister(email : String, password : String){
         if(email.isEmpty() || password.isEmpty()){
@@ -56,8 +60,9 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Wrongly formatted email: ${it.message}", Toast.LENGTH_SHORT).show()
                     Log.d("Main", "Failed to create user: ${it.message}")
                 }
-    }
+    }*/
 }
+
 
 //  Test of auth - these worked so they are commented out:
 //performRegister("batman@bat.com", "betterThanSuperman")
