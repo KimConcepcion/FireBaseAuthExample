@@ -23,19 +23,30 @@ class MainActivity : AppCompatActivity() {
         val url : String = "gs://testapp-9baa2.appspot.com"
         val mobile_path = Environment.getExternalStorageDirectory().toString()+"/Download/onlinedata.txt"
         val file = Uri.fromFile(File(mobile_path))
-        val storage = FirebaseStorage.getInstance()
-        val storageRef = storage.getReferenceFromUrl(url)
-        val onlineRef = storageRef.child("Uploads/onlinedata.txt")
+        val storage = FirebaseStorage.getInstance().getReference()
+        //val storageRef = storage.getReferenceFromUrl(url)
+        val onlineRef = storage.child("Uploads").child("onlinedata.txt")
 
 		Log.i("Path", file.path)
+
+        //  Upload file:
         onlineRef.putFile(file)
                 .addOnFailureListener {
-
                     Toast.makeText(this, "Upload unsuccesful", Toast.LENGTH_SHORT).show()
                     Log.d("MainActivity-Error", it.message)
                 }
                 .addOnSuccessListener {
                     Toast.makeText(this, "Upload succesful", Toast.LENGTH_SHORT).show()
+                }
+
+        //  Download file:
+        val localFile = File.createTempFile("Download", ".pdf")
+        onlineRef.getFile(localFile)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Download succesful", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Download unsuccesful", Toast.LENGTH_SHORT).show()
                 }
     }
 
